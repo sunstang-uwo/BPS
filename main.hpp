@@ -95,6 +95,7 @@ Sensor::Sensor(int id, string measurement){
 // All sensor boards will be intitialized from the main board
 class I2C {
     int id;
+    int test;
     
 public:
     
