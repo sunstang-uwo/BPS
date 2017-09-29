@@ -10,7 +10,6 @@
 #define main_hpp
 
 #include <stdio.h>
-#include "string"
 
 #endif /* main_hpp */
 
@@ -42,8 +41,43 @@ const int STATUS_CODE_HARDWARE_ERROR = 99; //TODO: Maybe use a smaller number?
 
 
 //GLOBAL VARIABLES
-int BPS_STATUS = 0;
+int BPS_STATUS; //0 on startup, 1 when activated, 9 on BPS trip
+int TEMP_SENSOR_NUMBER = 8; //Number of temperature sensor boards
 
+// BOARD INITIALIZATION
+class StartUp {
+    
+public:
+    void wait_on_startup(){
+        // Set BPS_STATUS to 0
+        BPS_STATUS = 0;
+        Serial.println("Initializing BPS...");
+        
+        
+        while (BPS_STATUS != 1) {
+            init_master();
+        }
+    };
+    
+private:
+    void init_master(){
+        analogWrite(8, 123); //Set fan duty cycle to 50%
+        
+        Serial.begin(9600);
+        //Wire.begin();
+    };
+    
+    void init_temp(){
+    };
+    
+    void init_current(){
+        
+    };
+    
+    void init_can(){
+        
+    };
+};
 
 //CLASS DEFINITIONS
 // Use a class to handle sensor measurements for temperature, current and voltage
@@ -52,7 +86,7 @@ class Sensor {
     double volt_val;
     double final_val;
     int sensor_address;
-    string type; // Will dictate if measurement is temp, current or volt.
+    char type; // Will dictate if measurement is temp, current or volt.
     
 private:
     double read_sensor(){
@@ -81,25 +115,15 @@ private:
     }
     
 public:
-    Sensor(int, string); //Constructor
+    Sensor(int, char); //Constructor
 };
 
 //Sensor class constructor. Sets sensor address ID on initialization
-Sensor::Sensor(int id, string measurement){
+Sensor::Sensor(int id, char measurement){
     sensor_address = id;
     type = measurement;
     
 }
-
-// BOARD INITIALIZATION
-// All sensor boards will be intitialized from the main board
-class I2C {
-    int id;
-    int test;
-    
-public:
-    
-};
 
 // ERROR HANDLING
 
