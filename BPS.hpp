@@ -68,6 +68,7 @@ private:
     };
     
     void init_temp(){
+        Serial.begin(9600);
     };
     
     void init_current(){
