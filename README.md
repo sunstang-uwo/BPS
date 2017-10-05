@@ -1,2 +1,5 @@
 # BPS
-Sunstang's 2018 BPS System
+SunStang's 2018 Battery Protection System
+Designed for the team's first cruiser style vehicle
+
+

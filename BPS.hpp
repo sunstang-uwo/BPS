@@ -10,6 +10,8 @@
 #define main_hpp
 
 #include <stdio.h>
+#include <TimerOne.h>
+#include <Wire.h>
 
 #endif /* main_hpp */
 
@@ -43,28 +45,36 @@ const int STATUS_CODE_HARDWARE_ERROR = 99; //TODO: Maybe use a smaller number?
 //GLOBAL VARIABLES
 int BPS_STATUS; //0 on startup, 1 when activated, 9 on BPS trip
 int TEMP_SENSOR_NUMBER = 8; //Number of temperature sensor boards
+const int PERIOD = 1000000; //10Hz
+
+volatile boolean task_flag = false;
+enum measurement {voltage, current, temperature};
+enum CARSTATE {CAR_IDLE, CAR_ACTIVE};
 
 // BOARD INITIALIZATION
 class StartUp {
-    
 public:
-    void wait_on_startup(){
+    void wait_on_startup(){ //Initial function call, will handle all initialization and set BPS_STATUS to 1
         // Set BPS_STATUS to 0
         BPS_STATUS = 0;
+        volatile CARSTATE car_state = CAR_IDLE;
         Serial.println("Initializing BPS...");
         
         
         while (BPS_STATUS != 1) {
             init_master();
+            
         }
     };
     
-private:
     void init_master(){
         analogWrite(8, 123); //Set fan duty cycle to 50%
         
+        Timer1.initialize(PERIOD);
+        
         Serial.begin(9600);
-        //Wire.begin();
+        //Wire.begin(); TODO: Uncomment
+        
     };
     
     void init_temp(){
@@ -84,47 +94,82 @@ private:
 // Use a class to handle sensor measurements for temperature, current and voltage
 // Will read sensor measurements in voltage and convert to final values
 class Sensor {
-    double volt_val;
-    double final_val;
+    double adc_value;
+    double final_value;
     int sensor_address;
     char type; // Will dictate if measurement is temp, current or volt.
     
 private:
-    double read_sensor(){
-        
-        return volt_val;
-    }
+    
     
     double calculate_final_value(){
-        if (type == "Temperature"){
+        if (type == temperature){
             // Calculate temperature from thermistor value
             //TODO: Add temp. calculations
-            final_val = 0;}
-        else if (type == "Current"){
+            final_value = 0;}
+        else if (type == current){
             // Calculate the current from the current sensor
             //TODO: Add current calculations
-            final_val = 0;}
-        else if (type == "Voltage"){
+            final_value = 0;}
+        else if (type == voltage){
             // Calculate the voltage
             //TODO: Add voltage calculations
-            final_val = 0;}
+            final_value = 0;}
         else{
             
             return BPS_STATUS = STATUS_CODE_SOFTWARE_ERROR;}
         
-        return final_val;
+        return final_value;
     }
     
 public:
-    Sensor(int, char); //Constructor
+    Sensor(measurement type, int); //Constructor
+    
+    double read_sensor(){
+        return adc_value;
+    }
+    
 };
 
 //Sensor class constructor. Sets sensor address ID on initialization
-Sensor::Sensor(int id, char measurement){
+Sensor::Sensor(enum measurement measurement, int id){
     sensor_address = id;
     type = measurement;
-    
 }
+
+//TASK HANDLING
+class Tasks {
+    
+public:
+    void timerISR(){
+        task_flag = true;
+    }
+    
+    void WaitForFlag(){
+        while (task_flag == false);
+        task_flag = false; //resets flag after interrupt is finished
+    }
+    
+    void Task_CheckVoltage(){
+    
+    }
+    
+    void Task_CheckTemp(){
+    
+    }
+    
+    void Task_CheckCurrent(){
+
+    }
+    
+    void Task_UpdateLCD(){
+        
+    }
+    
+    void Task_SendCAN(){
+        
+    }
+};
 
 // ERROR HANDLING
 
