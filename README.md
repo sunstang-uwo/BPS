@@ -28,5 +28,5 @@ The main board handles the following tasks:
 - Initialize and update the battery box/driver display LCD (Could have individual LCD in battery box for current, temp and voltage )
 - Update the LCD display with BPS status and current/voltage/temp values
 - Read voltage/temp/current at rate of ???
-- Handles reading all neccesary measurements using task handling???
+- Handles reading all neccesary measurements using interrupt task handling???
 -
